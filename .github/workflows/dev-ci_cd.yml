@@ -1,0 +1,52 @@
+name: Devlopment Environment CI/CD
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  lint_dev:
+    runs-on: debian-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - run: npm ci
+    - run: npm run lint
+
+  deploy_dev:
+    runs-on: debian-latest
+    needs: lint_dev
+
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+
+    - name: Use Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: 🔨 Build Project
+      run: |
+        npm ci
+        npm run build
+
+    # - name: 📂 Sync files
+    #   uses: SamKirkland/FTP-Deploy-Action@4.2.0
+    #   with:
+    #     server: ${{ secrets.ftp_dev_host }}
+    #     username: ${{ secrets.ftp_dev_username }}
+    #     password: ${{ secrets.ftp_dev_password }}
+    #     local-dir: ./dist/site/
+    #     server-dir:  /public_html/

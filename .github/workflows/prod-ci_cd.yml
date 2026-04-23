@@ -1,0 +1,52 @@
+name: Production Environment CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  lint_prod:
+    runs-on: debian-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - run: npm ci
+    - run: npm run lint
+
+  deploy_prod:
+    runs-on: debian-latest
+    needs: lint_prod
+
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+
+    - name: Use Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: 🔨 Build Project
+      run: |
+        npm ci
+        npm run build:prod
+
+    # - name: 📂 Sync files
+    #   uses: SamKirkland/FTP-Deploy-Action@4.2.0
+    #   with:
+    #     server: ${{ secrets.ftp_prod_host }}
+    #     username: ${{ secrets.ftp_prod_username }}
+    #     password: ${{ secrets.ftp_prod_password }}
+    #     local-dir: ./dist/site/
+    #     server-dir:  /public_html/
