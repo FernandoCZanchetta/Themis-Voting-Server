@@ -1,0 +1,67 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["partialIndexes"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Course {
+  id   String @default(uuid())
+  name String
+  code Int    @unique
+}
+
+model Institute {
+  id   String @default(uuid())
+  name String
+  code Int    @unique
+}
+
+model Campus {
+  id   String @default(uuid())
+  name String @unique
+}
+
+model User {
+  id            String   @id @default(uuid())
+  nUSPHash      String   @unique
+  course        String?
+  institute     String?
+  campus        String?
+  createdAt     DateTime @default(now())
+  courseCode    Int?
+  instituteCode Int?
+}
+
+model Voting {
+  id                String   @id @default(uuid())
+  name              String
+  description       String
+  voteType          String
+  startAt           DateTime
+  endAt             DateTime
+  allowedCourses    String[]
+  allowedInstitutes String[]
+  allowedCampi      String[]
+  createdAt         DateTime @default(now())
+  votes             Vote[]
+}
+
+model Vote {
+  id            String    @default(uuid())
+  votingId      String
+  voterToken    String
+  voteData      Json
+  nonce         String
+  voteHash      String    @unique
+  createdAt     DateTime  @default(now())
+  revokedAt     DateTime?
+  voteSignature String
+  voting        Voting    @relation(fields: [votingId], references: [id])
+
+  @@unique([votingId, voterToken], map: "Vote_unique_actives_idx", where: raw("(\"revokedAt\" IS NULL)"))
+  @@index([votingId, voterToken])
+}
