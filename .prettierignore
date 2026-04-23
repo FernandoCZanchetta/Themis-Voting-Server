@@ -1,0 +1,14 @@
+# Github files
+.github/*
+
+# Node files
+node_modules/*
+
+# Build files
+dist/*
+
+# Typescript configuration files
+tsconfig.json
+
+# ESLint configuration files
+eslint.config.ts
