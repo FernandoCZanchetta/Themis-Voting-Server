@@ -12,3 +12,6 @@ tsconfig.json
 
 # ESLint configuration files
 eslint.config.ts
+
+# Prisma configuration files
+prisma.config.ts
