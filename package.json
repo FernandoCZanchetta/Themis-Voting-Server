@@ -1,0 +1,60 @@
+{
+  "name": "themis-voting-server",
+  "version": "1.0.0",
+  "description": "This is the server-side of the Themis Voting System. It englobes an Express REST API and Prisma to manage an DBMS.",
+  "main": "src/server.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node -r tsconfig-paths/register src/server.ts",
+    "dev": "ts-node-dev -r tsconfig-paths/register --respawn src/server.ts",
+    "lint": "npx eslint . && npx prettier -c .",
+    "format": "npx eslint --fix . && npx prettier --write .",
+    "precommit": "npm lint-staged && npm lint"
+  },
+  "lint-staged": {
+    "*.{ts,js,json,md}": [
+      "npx eslint --fix .",
+      "npx prettier --write .",
+      "git add"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FernandoCZanchetta/Themis-Voting-Server.git"
+  },
+  "keywords": [
+    "voting",
+    "election",
+    "poll"
+  ],
+  "author": "Fernando Zanchetta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FernandoCZanchetta/Themis-Voting-Server/issues"
+  },
+  "homepage": "https://github.com/FernandoCZanchetta/Themis-Voting-Server#readme",
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.7.0",
+    "@prisma/client": "^7.7.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "playwright": "^1.59.1",
+    "prisma": "^7.7.0",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.6.0",
+    "eslint": "^10.2.1",
+    "globals": "^17.5.0",
+    "jiti": "^2.6.1",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.0"
+  }
+}
