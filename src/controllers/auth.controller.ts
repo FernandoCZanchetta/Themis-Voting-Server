@@ -24,23 +24,29 @@ export async function login(req: Request, res: Response) {
     if (err instanceof Error) {
       if (err.message.includes('Invalid nUSP')) {
         console.error('[ERROR] [Auth Controller] ' + err.message)
-        return res.status(400).json({ error: 'Login Failed', cause: 'Invalid nUSP!'})
+        return res.status(400).json({ error: 'Login Failed', cause: 'Invalid nUSP!' })
       } else if (err.message.includes('Invalid Unique Password')) {
         console.error('[ERROR] [Auth Controller] ' + err.message)
-        return res.status(400).json({ error: 'Login Failed', cause: 'Invalid Unique Password!'})
+        return res.status(400).json({ error: 'Login Failed', cause: 'Invalid Unique Password!' })
       } else if (err.message.includes('Invalid Course')) {
         console.error('[ERROR] [Auth Controller] ' + err.message)
-        return res.status(400).json({ error: 'User Generation Failed', cause: 'Invalid Course!'})
+        return res.status(400).json({ error: 'User Generation Failed', cause: 'Invalid Course!' })
       } else if (err.message.includes('Invalid Institute')) {
         console.error('[ERROR] [Auth Controller] ' + err.message)
-        return res.status(400).json({ error: 'User Generation Failed', cause: 'Invalid Institute!'})
+        return res.status(400).json({ error: 'User Generation Failed', cause: 'Invalid Institute!' })
       }
 
       console.error('[ERROR] [Auth Controller] Failed To Login!' + err.message)
-      return res.status(500).json({ error: 'Login Failed', cause: 'Unexpected Error During Login, Try Again Later!' })
+      return res.status(500).json({
+        error: 'Login Failed',
+        cause: 'Unexpected Error During Login, Try Again Later!',
+      })
     }
 
     console.error('[ERROR] [Auth Controller] Failed To Login! Unknown error type!')
-    return res.status(500).json({ error: 'Login Failed', cause: 'Unknown error type! Try again later or contact us!' })
+    return res.status(500).json({
+      error: 'Login Failed',
+      cause: 'Unknown error type! Try again later or contact us!',
+    })
   }
 }

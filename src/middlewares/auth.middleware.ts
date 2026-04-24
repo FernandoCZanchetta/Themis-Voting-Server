@@ -34,12 +34,16 @@ export function auth(req: AuthRequest, res: Response, next: NextFunction) {
 
     if (err instanceof NotBeforeError) {
       console.error('[ERROR] [Auth Middleware] Not Active JWT! (' + err.message + ')')
-      return res.status(401).json({ error: 'Unauthorized', cause: 'JWT not active! Please, wait for the token to become active!' })
+      return res
+        .status(401)
+        .json({ error: 'Unauthorized', cause: 'JWT not active! Please, wait for the token to become active!' })
     }
 
     if (err instanceof JsonWebTokenError) {
       console.error('[ERROR] [Auth Middleware] Malformed JWT! (' + err.message + ')')
-      return res.status(401).json({ error: 'Unauthorized', cause: 'Malformed JWT! Good try, but, please, insert a valid token!' })
+      return res
+        .status(401)
+        .json({ error: 'Unauthorized', cause: 'Malformed JWT! Good try, but, please, insert a valid token!' })
     }
 
     if (err instanceof Error) {

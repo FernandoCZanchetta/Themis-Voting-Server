@@ -9,31 +9,33 @@ export async function authFromJupiterWeb(nUSP: string, uniquePassword: string) {
   const scrappedUser = await scrapeJupiterUser(nUSP, uniquePassword)
 
   console.info('[Auth Service] Check course, institute and campus and upsert DB...')
+  /* eslint-disable indent */
   await Promise.all([
-    scrappedUser.course && scrappedUser.courseCode ?
-      prismaClient.course.upsert({
-        where: { code: scrappedUser.courseCode },
-        update: { name: scrappedUser.course },
-        create: { code: scrappedUser.courseCode, name: scrappedUser.course },
-      }) :
-      Promise.resolve(),
+    scrappedUser.course && scrappedUser.courseCode
+      ? prismaClient.course.upsert({
+          where: { code: scrappedUser.courseCode },
+          update: { name: scrappedUser.course },
+          create: { code: scrappedUser.courseCode, name: scrappedUser.course },
+        })
+      : Promise.resolve(),
 
-    scrappedUser.institute && scrappedUser.instituteCode ?
-      prismaClient.institute.upsert({
-        where: { code: scrappedUser.instituteCode },
-        update: { name: scrappedUser.institute },
-        create: { code: scrappedUser.instituteCode, name: scrappedUser.institute },
-      }) :
-      Promise.resolve(),
+    scrappedUser.institute && scrappedUser.instituteCode
+      ? prismaClient.institute.upsert({
+          where: { code: scrappedUser.instituteCode },
+          update: { name: scrappedUser.institute },
+          create: { code: scrappedUser.instituteCode, name: scrappedUser.institute },
+        })
+      : Promise.resolve(),
 
-    scrappedUser.campus ?
-      prismaClient.campus.upsert({
-        where: { name: scrappedUser.campus },
-        update: {},
-        create: { name: scrappedUser.campus },
-      }) :
-      Promise.resolve(),
+    scrappedUser.campus
+      ? prismaClient.campus.upsert({
+          where: { name: scrappedUser.campus },
+          update: {},
+          create: { name: scrappedUser.campus },
+        })
+      : Promise.resolve(),
   ])
+  /* eslint-enable indent */
 
   console.info('[Auth Service] Format user info...')
   const userData = {

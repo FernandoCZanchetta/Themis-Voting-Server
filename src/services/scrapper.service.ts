@@ -23,15 +23,12 @@ export async function scrapeJupiterUser(nUSP: string, uniquePassword: string, re
     console.info('[JupiterWeb Scrapper] Going to login page...')
     await page.goto(loginJupiterLink, { timeout: 15000 })
 
-
     console.info('[JupiterWeb Scrapper] Filling nUSP & UniquePassword fields...')
     await page.fill("input[name='codpes']", nUSP)
     await page.fill("input[name='senusu']", uniquePassword)
 
-
     console.info('[JupiterWeb Scrapper] ENTER...')
     await page.press("input[name='senusu']", 'Enter')
-
 
     console.info('[JupiterWeb Scrapper] Checking possible invalid credentials input...')
     const nUSPError = page.locator('#web_mensagem')
@@ -39,6 +36,7 @@ export async function scrapeJupiterUser(nUSP: string, uniquePassword: string, re
 
     await page.waitForTimeout(1500)
 
+    // prettier-ignore
     if (await nUSPError.count() > 0) {
       const text = await nUSPError.textContent()
 
@@ -47,45 +45,38 @@ export async function scrapeJupiterUser(nUSP: string, uniquePassword: string, re
       }
     }
 
+    // prettier-ignore
     if (await uniquePasswordError.count() > 0) {
       throw new Error('Invalid Unique Password!')
     }
 
-
     console.info('[JupiterWeb Scrapper] Wait pages to load...')
     await page.waitForSelector(hourlyScheduleJupiterSelector, { timeout: 7500 })
     await page.click(hourlyScheduleJupiterSelector)
-
 
     console.info('[JupiterWeb Scrapper] Wait program selector & options to load...')
     const programSelector = page.locator('select')
     const programOptions = programSelector.locator('option')
     const programCount = await programOptions.count()
 
-
     console.info('[JupiterWeb Scrapper] Select most recent program...')
     const lastProgram = await programOptions.nth(programCount - 1).getAttribute('value')
     await programSelector.selectOption(lastProgram)
 
-
     console.info('[JupiterWeb Scrapper] Press search button to retrieve information...')
     await page.click("input[type='button'][value='Buscar']")
 
-
     console.info('[JupiterWeb Scrapper] Wait for hourly schedule table to load...')
     await page.waitForSelector("tr[id='1']", { timeout: 10000 })
-
 
     console.info('[JupiterWeb Scrapper] Wait and get user course and institute...')
     await page.waitForSelector('#curso, #unidade')
     const courseText = await page.textContent('#curso')
     const instituteText = await page.textContent('#unidade')
 
-
     console.info('[JupiterWeb Scrapper] Format data...')
-    const { code: courseCode, name: course} = parseCodeAndName(courseText ?? undefined)
+    const { code: courseCode, name: course } = parseCodeAndName(courseText ?? undefined)
     const { code: instituteCode, name: institute } = parseCodeAndName(instituteText ?? undefined)
-
 
     console.info('[JupiterWeb Scrapper] Check data...')
     if (!course || !courseCode) {
@@ -95,10 +86,8 @@ export async function scrapeJupiterUser(nUSP: string, uniquePassword: string, re
       throw new Error('Invalid Institute!')
     }
 
-
     console.info('[JupiterWeb Scrapper] Anonymize sensitive data...')
     const nUSPHash = crypto.createHash('sha512').update(nUSP).digest('hex')
-
 
     return {
       sub: `user:${nUSPHash}`,
@@ -112,7 +101,12 @@ export async function scrapeJupiterUser(nUSP: string, uniquePassword: string, re
     if (err instanceof Error) {
       if (err.message.includes('Timeout') || err.message.includes('Navigation')) {
         await new Promise(r => setTimeout(r, 1000))
-        console.error('[ERROR] [JupiterWeb Scrapper] Login failed or timeouted while trying to scrape JupiterWeb data! [Retry: ' + retry + '] Error: ' + err.message)
+        console.error(
+          '[ERROR] [JupiterWeb Scrapper] Login failed or timeouted while trying to scrape JupiterWeb data! [Retry: ' +
+            retry +
+            '] Error: ' +
+            err.message,
+        )
         return scrapeJupiterUser(nUSP, uniquePassword, retry + 1)
       }
 
@@ -122,13 +116,19 @@ export async function scrapeJupiterUser(nUSP: string, uniquePassword: string, re
       }
 
       if (err.message.includes('Course!') || err.message.includes('Institute!')) {
-        console.error('[ERROR] [JupiterWeb Scrapper] User Generation Failed - Invalid Course/Institue! Error: ' + err.message)
+        console.error(
+          '[ERROR] [JupiterWeb Scrapper] User Generation Failed - Invalid Course/Institue! Error: ' + err.message,
+        )
         throw new Error('User Generation Failed - Invalid Course/Institue! Error: ' + err.message)
       }
     }
 
-    console.error('[ERROR] [JupiterWeb Scrapper] Login failed or an error occoured while trying to scrape JupiterWeb data!')
-    throw new Error('[ERROR] [JupiterWeb Scrapper] Login failed or an error occoured while trying to scrape JupiterWeb data!')
+    console.error(
+      '[ERROR] [JupiterWeb Scrapper] Login failed or an error occoured while trying to scrape JupiterWeb data!',
+    )
+    throw new Error(
+      '[ERROR] [JupiterWeb Scrapper] Login failed or an error occoured while trying to scrape JupiterWeb data!',
+    )
   } finally {
     await browser.close()
   }
