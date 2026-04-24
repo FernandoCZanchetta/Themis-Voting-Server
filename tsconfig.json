@@ -38,6 +38,7 @@
       "@middlewares": ["middlewares/index.ts"],
       "@models": ["models/index.ts"],
       "@routes": ["routes/index.ts"],
+      "@schemas": ["schemas/index.ts"],
       "@services": ["services/index.ts"],
       "@types": ["types/index.ts"],
       "@utils": ["utils/index.ts"]
