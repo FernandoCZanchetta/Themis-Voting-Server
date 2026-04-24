@@ -1,0 +1,125 @@
+import { Response } from 'express'
+import { prismaClient } from '@db'
+import { VotingWhereInput } from '@generated'
+import { votingsQuerySchema } from '@schemas'
+import { AuthRequest } from '@types'
+import { isUserEligible } from '@utils'
+
+export async function getVotings(req: AuthRequest, res: Response) {
+  try {
+    console.info('[Voting Controller] Checking user...')
+    const { user } = req
+    if (!user) {
+      console.error('[ERROR] [Voting Controller] Unauthorized user reached votings!')
+      return res.status(401).json({ error: 'Unauthorized', cause: 'It seems that you are not logged in... =O' })
+    }
+
+    console.info('[Voting Controller] Parsing request query...')
+    const parsedQuery = votingsQuerySchema.safeParse(req.query)
+
+    if (!parsedQuery.success) {
+      console.error('[ERROR] [Voting Controller] Invalid query parameters inserted!')
+      return res.status(400).json({ error: 'Invalid Query', cause: 'Check your query parameters!' })
+    }
+
+    const { status = 'active' } = parsedQuery.data
+
+    console.info('[Voting Controller] Getting current date...')
+    const now = new Date()
+
+    console.info('[Voting Controller] Preparing votings filter...')
+    const votingsWhereFilter: VotingWhereInput = {}
+
+    switch (status) {
+      case 'active': {
+        votingsWhereFilter.startAt = { lte: now }
+        votingsWhereFilter.endAt = { gte: now }
+        break
+      }
+      case 'upcoming': {
+        votingsWhereFilter.startAt = { gt: now }
+        break
+      }
+      case 'finished': {
+        votingsWhereFilter.endAt = { lt: now }
+        break
+      }
+      default: {
+        console.error('[ERROR] [Voting Controller] How did you even fell here???')
+      }
+    }
+
+    console.info('[Voting Controller] Getting votings...')
+    const votings = await prismaClient.voting.findMany({ where: votingsWhereFilter })
+
+    console.info('[Voting Controller] Checking what votings are eligible to the user...')
+    const eligibleVotings = votings.filter(voting => isUserEligible(user, voting))
+
+    console.info('[Voting Controller] Sending votings to user...')
+    return res.status(200).json(eligibleVotings)
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error('[ERROR] [Voting Controller] Failed to parse votings! Error:' + err.message)
+      return res
+        .status(500)
+        .json({ error: 'Get Votings Failed', cause: 'Unexpected error during votings retrieval! Try again later!' })
+    }
+
+    console.error('[ERROR] [Voting Controller] Unknown error encountered when parsing votings!')
+    return res
+      .status(500)
+      .json({
+        error: 'Get Votings Failed',
+        cause: 'Unknown error during votings retrieval! Try again later or contact us!',
+      })
+  }
+}
+
+export async function getVotingById(req: AuthRequest<{ votingId: string }>, res: Response) {
+  try {
+    console.info('[Voting Controller] Checking user...')
+    const { user } = req
+    if (!user) {
+      console.error('[ERROR] [Voting Controller] Unauthorized user reached votings!')
+      return res.status(401).json({ error: 'Unauthorized', cause: 'It seems that you are not logged in... =O' })
+    }
+
+    console.info('[Voting Controller] Parsing voting ID...')
+    const { votingId } = req.params
+
+    console.info('[Voting Controller] Getting voting from DB...')
+    const voting = await prismaClient.voting.findUnique({ where: { id: votingId } })
+
+    console.info('[Voting Controller] Checking if voting exists...')
+    if (!voting) {
+      return res.status(404).json({ error: 'Voting Not Found', cause: 'It seems like it does not exist...' })
+    }
+
+    console.info('[Voting Controller] Checking what votings are eligible to the user...')
+    if (!isUserEligible(user, voting)) {
+      return res
+        .status(403)
+        .json({ error: 'Forbidden', cause: 'The voting you tried to access is not available for you... =(' })
+    }
+
+    return res.status(200).json(voting)
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error('[ERROR] [Voting Controller] Failed to parse voting by ID! Error: ' + err.message)
+      return res
+        .status(500)
+        .json({
+          error: 'Get Voting By ID Failed',
+          cause: 'Unexpected error while retrieving voting by ID! Try again later!',
+        })
+    }
+
+    console.error('[ERROR] [Voting Controller] Unknown error encountered when parsing voting by ID!')
+    return res
+      .status(500)
+      .json({
+        error: 'Get Voting By ID Failed',
+        cause: 'Unknown error while retrieving voting by ID! Try again later or contact us!',
+      })
+  }
+}
