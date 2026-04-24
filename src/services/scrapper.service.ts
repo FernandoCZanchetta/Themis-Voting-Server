@@ -83,8 +83,17 @@ export async function scrapeJupiterUser(nUSP: string, uniquePassword: string, re
 
 
     console.info('[JupiterWeb Scrapper] Format data...')
-    const { codeNumber: courseCode, name: course} = parseCodeAndName(courseText ?? undefined)
-    const { codeNumber: instituteCode, name: institute } = parseCodeAndName(instituteText ?? undefined)
+    const { code: courseCode, name: course} = parseCodeAndName(courseText ?? undefined)
+    const { code: instituteCode, name: institute } = parseCodeAndName(instituteText ?? undefined)
+
+
+    console.info('[JupiterWeb Scrapper] Check data...')
+    if (!course || !courseCode) {
+      throw new Error('Invalid Course!')
+    }
+    if (!institute || !instituteCode) {
+      throw new Error('Invalid Institute!')
+    }
 
 
     console.info('[JupiterWeb Scrapper] Anonymize sensitive data...')
@@ -110,6 +119,11 @@ export async function scrapeJupiterUser(nUSP: string, uniquePassword: string, re
       if (err.message.includes('nUSP') || err.message.includes('Unique Password')) {
         console.error('[ERROR] [JupiterWeb Scrapper] Login Failed - Invalid Credentials! Error: ' + err.message)
         throw new Error('Login failed - Invalid Credentials! Error: ' + err.message)
+      }
+
+      if (err.message.includes('Course!') || err.message.includes('Institute!')) {
+        console.error('[ERROR] [JupiterWeb Scrapper] User Generation Failed - Invalid Course/Institue! Error: ' + err.message)
+        throw new Error('User Generation Failed - Invalid Course/Institue! Error: ' + err.message)
       }
     }
 
