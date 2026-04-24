@@ -15,6 +15,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Add generic PRISMA_DATABASE_URL to GITHUB_ENV
+      run: echo "PRISMA_DATABASE_URL = postgresql://user:pass@localhost:5432/db" >> $GITHUB_ENV
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
@@ -22,6 +25,10 @@ jobs:
         cache: 'npm'
 
     - run: npm ci
+
+    - name: Generate Prisma Client (ESLint Happy Now!)
+      run: npx prisma generate
+
     - run: npm run lint
 
   deploy_prod:
