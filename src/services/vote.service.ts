@@ -1,16 +1,15 @@
 import { prismaClient } from '@db'
-import { VoteDataSchema } from '@schemas'
 import { AuthUser, voteReceipt } from '@types'
 import { generateNonce, generateReceiptSignature, generateVoteHash, generateVoterToken, isUserEligible } from '@utils'
 
 export async function castVote({
   user,
   votingId,
-  voteData,
+  optionId,
 }: {
   user: AuthUser
   votingId: string
-  voteData: VoteDataSchema
+  optionId: string
 }): Promise<voteReceipt> {
   console.info('[Vote Service] Searching for the voting...')
   const voting = await prismaClient.voting.findUnique({ where: { id: votingId } })
@@ -39,7 +38,7 @@ export async function castVote({
 
   console.info('[Vote Service] Checking if selected voting option is valid...')
   const userSelectedVotingOption = await prismaClient.votingOption.findFirst({
-    where: { id: voteData.voteOptionId, votingId },
+    where: { id: optionId, votingId },
   })
   if (!userSelectedVotingOption) {
     console.error('[ERROR] [Vote Service] Invalid voting option!')
