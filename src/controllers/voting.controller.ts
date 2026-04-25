@@ -66,12 +66,10 @@ export async function getVotings(req: AuthRequest, res: Response) {
     }
 
     console.error('[ERROR] [Voting Controller] Unknown error encountered when parsing votings!')
-    return res
-      .status(500)
-      .json({
-        error: 'Get Votings Failed',
-        cause: 'Unknown error during votings retrieval! Try again later or contact us!',
-      })
+    return res.status(500).json({
+      error: 'Get Votings Failed',
+      cause: 'Unknown error during votings retrieval! Try again later or contact us!',
+    })
   }
 }
 
@@ -106,20 +104,16 @@ export async function getVotingById(req: AuthRequest<{ votingId: string }>, res:
   } catch (err: unknown) {
     if (err instanceof Error) {
       console.error('[ERROR] [Voting Controller] Failed to parse voting by ID! Error: ' + err.message)
-      return res
-        .status(500)
-        .json({
-          error: 'Get Voting By ID Failed',
-          cause: 'Unexpected error while retrieving voting by ID! Try again later!',
-        })
+      return res.status(500).json({
+        error: 'Get Voting By ID Failed',
+        cause: 'Unexpected error while retrieving voting by ID! Try again later!',
+      })
     }
 
     console.error('[ERROR] [Voting Controller] Unknown error encountered when parsing voting by ID!')
-    return res
-      .status(500)
-      .json({
-        error: 'Get Voting By ID Failed',
-        cause: 'Unknown error while retrieving voting by ID! Try again later or contact us!',
-      })
+    return res.status(500).json({
+      error: 'Get Voting By ID Failed',
+      cause: 'Unknown error while retrieving voting by ID! Try again later or contact us!',
+    })
   }
 }
