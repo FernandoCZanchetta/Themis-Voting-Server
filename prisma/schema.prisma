@@ -9,19 +9,19 @@ datasource db {
 }
 
 model Course {
-  id      String    @default(uuid())
+  id      String    @id @default(uuid())
   name    String
   code    Int       @unique
 }
 
 model Institute {
-  id      String    @default(uuid())
+  id      String    @id @default(uuid())
   name    String
   code    Int       @unique
 }
 
 model Campus {
-  id      String    @default(uuid())
+  id      String    @id @default(uuid())
   name    String    @unique
 }
 
@@ -59,16 +59,17 @@ model VotingOption {
 }
 
 model Vote {
-  id            String       @default(uuid())
-  votingId      String
-  voterToken    String
-  voteData      Json
-  nonce         String
-  voteHash      String       @unique
-  createdAt     DateTime     @default(now())
-  revokedAt     DateTime?
-  voteSignature String
-  voting        Voting       @relation(fields: [votingId], references: [id])
+  id               String       @id @default(uuid())
+  votingId         String
+  voterToken       String
+  optionId         String
+  optionLabel      String
+  nonce            String
+  voteHash         String       @unique
+  createdAt        DateTime     @default(now())
+  revokedAt        DateTime?
+  voteSignature    String
+  voting               Voting       @relation(fields: [votingId], references: [id])
 
   @@unique([votingId, voterToken], map: "Vote_unique_actives_idx", where: raw("(\"revokedAt\" IS NULL)"))
   @@index([votingId, voterToken])
