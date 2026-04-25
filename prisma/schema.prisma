@@ -69,7 +69,7 @@ model Vote {
   createdAt        DateTime     @default(now())
   revokedAt        DateTime?
   voteSignature    String
-  voting               Voting       @relation(fields: [votingId], references: [id])
+  voting           Voting       @relation(fields: [votingId], references: [id])
 
   @@unique([votingId, voterToken], map: "Vote_unique_actives_idx", where: raw("(\"revokedAt\" IS NULL)"))
   @@index([votingId, voterToken])
