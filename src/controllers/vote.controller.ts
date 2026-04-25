@@ -1,9 +1,9 @@
 import { Response } from 'express'
-import { voteSchema } from '@schemas'
+import { voteBodySchema, voteParamsSchema } from '@schemas'
 import { castVote } from '@services'
 import { AuthRequest } from '@types'
 
-export async function voteHandler(req: AuthRequest, res: Response) {
+export async function voteHandler(req: AuthRequest<{ votingId: string }>, res: Response) {
   try {
     console.info('[Vote Controller] Checking user...')
     const { user } = req
@@ -13,15 +13,25 @@ export async function voteHandler(req: AuthRequest, res: Response) {
       return res.status(401).json({ error: 'Unauthorized', cause: 'Missing user, are you logged?! =O' })
     }
 
+    console.info('[Vote Controller] Parsing request params...')
+    const parsedParams = voteParamsSchema.safeParse(req.params)
+
+    if (!parsedParams.success) {
+      console.error('[ERROR] [Vote Controller] Invalid params parameters in the request!')
+      return res.status(400).json({ error: 'Invalid Params', cause: 'Check the params of your request!' })
+    }
+
+    const { votingId } = parsedParams.data
+
     console.info('[Vote Controller] Parsing request body...')
-    const parsedBody = voteSchema.safeParse(req.body)
+    const parsedBody = voteBodySchema.safeParse(req.body)
 
     if (!parsedBody.success) {
       console.error('[ERROR] [Vote Controller] Invalid body parameters in the request!')
       return res.status(400).json({ error: 'Invalid Body', cause: 'Check the body of your request!' })
     }
 
-    const { votingId, optionId } = parsedBody.data
+    const { optionId } = parsedBody.data
 
     console.info('[Vote Controller] Casting vote and waiting for receipt...')
     const result = await castVote({ user, votingId, optionId })
