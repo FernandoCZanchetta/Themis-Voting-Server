@@ -54,14 +54,7 @@ export async function castVote({
 
     const createdAt = new Date()
 
-    const voteHash = generateVoteHash(
-      voterToken,
-      votingId,
-      userSelectedVotingOption.id,
-      userSelectedVotingOption.label,
-      createdAt,
-      nonce,
-    )
+    const voteHash = generateVoteHash(voterToken, votingId, userSelectedVotingOption.id, nonce)
 
     const voteSignature = generateReceiptSignature(voteHash, nonce)
 
