@@ -9,58 +9,66 @@ datasource db {
 }
 
 model Course {
-  id   String @default(uuid())
-  name String
-  code Int    @unique
+  id      String    @default(uuid())
+  name    String
+  code    Int       @unique
 }
 
 model Institute {
-  id   String @default(uuid())
-  name String
-  code Int    @unique
+  id      String    @default(uuid())
+  name    String
+  code    Int       @unique
 }
 
 model Campus {
-  id   String @default(uuid())
-  name String @unique
+  id      String    @default(uuid())
+  name    String    @unique
 }
 
 model User {
-  id            String   @id @default(uuid())
-  nUSPHash      String   @unique
+  id            String      @id @default(uuid())
+  nUSPHash      String      @unique
   course        String?
   institute     String?
   campus        String?
-  createdAt     DateTime @default(now())
+  createdAt     DateTime    @default(now())
   courseCode    Int?
   instituteCode Int?
 }
 
 model Voting {
-  id                String   @id @default(uuid())
+  id                String            @id @default(uuid())
   name              String
   description       String
   voteType          String
+  votingOptions     VotingOption[]
   startAt           DateTime
   endAt             DateTime
   allowedCourses    String[]
   allowedInstitutes String[]
   allowedCampi      String[]
-  createdAt         DateTime @default(now())
+  createdAt         DateTime          @default(now())
   votes             Vote[]
 }
 
+model VotingOption {
+  id          String    @id @default(uuid())
+  votingId    String
+  label       String
+  voting      Voting    @relation(fields: [votingId], references: [id])
+}
+
 model Vote {
-  id            String    @default(uuid())
+  id            String       @default(uuid())
   votingId      String
   voterToken    String
   voteData      Json
   nonce         String
-  voteHash      String    @unique
-  createdAt     DateTime  @default(now())
+  voteHash      String       @unique
+  createdAt     DateTime     @default(now())
   revokedAt     DateTime?
   voteSignature String
-  voting        Voting    @relation(fields: [votingId], references: [id])
+  voting        Voting       @relation(fields: [votingId], references: [id])
 
   @@unique([votingId, voterToken], map: "Vote_unique_actives_idx", where: raw("(\"revokedAt\" IS NULL)"))
   @@index([votingId, voterToken])
