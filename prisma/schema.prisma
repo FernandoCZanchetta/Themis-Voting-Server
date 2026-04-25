@@ -56,6 +56,7 @@ model VotingOption {
   votingId    String
   label       String
   voting      Voting    @relation(fields: [votingId], references: [id])
+  votes       Vote[]
 }
 
 model Vote {
@@ -70,6 +71,7 @@ model Vote {
   revokedAt        DateTime?
   voteSignature    String
   voting           Voting       @relation(fields: [votingId], references: [id])
+  votingOption     VotingOption @relation(fields: [optionId], references: [id])
 
   @@unique([votingId, voterToken], map: "Vote_unique_actives_idx", where: raw("(\"revokedAt\" IS NULL)"))
   @@index([votingId, voterToken])
