@@ -1,8 +1,12 @@
 import { z } from 'zod'
 
-export const voteSchema = z.object({
-  votingId: z.uuid(),
+export const voteBodySchema = z.object({
   optionId: z.uuid(),
 })
 
-export type VoteSchema = z.infer<typeof voteSchema>
+export const voteParamsSchema = z.object({
+  votingId: z.uuid(),
+})
+
+export type VoteBodySchema = z.infer<typeof voteBodySchema>
+export type VoteParamsSchema = z.infer<typeof voteParamsSchema>
