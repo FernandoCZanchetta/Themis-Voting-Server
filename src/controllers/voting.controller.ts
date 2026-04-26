@@ -3,7 +3,7 @@ import { prismaClient } from '@db'
 import { VotingWhereInput } from '@generated'
 import { votingsParamsSchema, votingsQuerySchema } from '@schemas'
 import { AuthRequest } from '@types'
-import { isUserEligible } from '@utils'
+import { buildVotingEligibilityWhereFilter } from '@utils'
 
 export async function getVotings(req: AuthRequest, res: Response) {
   try {
@@ -27,21 +27,29 @@ export async function getVotings(req: AuthRequest, res: Response) {
     console.info('[Voting Controller] Getting current date...')
     const now = new Date()
 
-    console.info('[Voting Controller] Preparing votings filter...')
-    const votingsWhereFilter: VotingWhereInput = {}
+    console.info('[Voting Controller] Preparing votings eligibility filter...')
+    const votingsEligibilityWhereFilter = buildVotingEligibilityWhereFilter(user)
 
+    console.info('[Voting Controller] Preparing votings status filter...')
+    const votingsStatusWhereFilter: VotingWhereInput[] = []
     switch (status) {
       case 'active': {
-        votingsWhereFilter.startAt = { lte: now }
-        votingsWhereFilter.endAt = { gte: now }
+        votingsStatusWhereFilter.push({
+          startAt: { lte: now },
+          endAt: { gte: now },
+        })
         break
       }
       case 'upcoming': {
-        votingsWhereFilter.startAt = { gt: now }
+        votingsStatusWhereFilter.push({
+          startAt: { gt: now },
+        })
         break
       }
       case 'finished': {
-        votingsWhereFilter.endAt = { lt: now }
+        votingsStatusWhereFilter.push({
+          endAt: { lt: now },
+        })
         break
       }
       default: {
@@ -49,14 +57,19 @@ export async function getVotings(req: AuthRequest, res: Response) {
       }
     }
 
-    console.info('[Voting Controller] Getting votings...')
-    const votings = await prismaClient.voting.findMany({ where: votingsWhereFilter })
+    console.info('[Voting Controller] Preparing final where filter...')
+    const votingsWhereFilter: VotingWhereInput = {
+      AND: [
+        ...votingsEligibilityWhereFilter,
+        ...votingsStatusWhereFilter,
+      ],
+    }
 
-    console.info('[Voting Controller] Checking what votings are eligible to the user...')
-    const eligibleVotings = votings.filter(voting => isUserEligible(user, voting))
+    console.info('[Voting Controller] Getting votings...')
+    const availableVotings = await prismaClient.voting.findMany({ where: votingsWhereFilter })
 
     console.info('[Voting Controller] Sending votings to user...')
-    return res.status(200).json(eligibleVotings)
+    return res.status(200).json(availableVotings)
   } catch (err: unknown) {
     if (err instanceof Error) {
       console.error('[ERROR] [Voting Controller] Failed to parse votings! Error:' + err.message)
@@ -100,14 +113,18 @@ export async function getVotingById(req: AuthRequest<{ votingId: string }>, res:
       return res.status(404).json({ error: 'Voting Not Found', cause: 'It seems like it does not exist...' })
     }
 
-    console.info('[Voting Controller] Checking what votings are eligible to the user...')
-    if (!isUserEligible(user, voting)) {
+    console.info('[Voting Controller] Preparing voting eligibility filter...')
+    const votingEligibilityWhereFilter = buildVotingEligibilityWhereFilter(user)
+
+    console.info('[Voting Controller] Checking if voting is eligible to the user...')
+    const availableVoting = await prismaClient.voting.findFirst({ where: { id, AND: votingEligibilityWhereFilter }})
+    if (!availableVoting) {
       return res
         .status(403)
         .json({ error: 'Forbidden', cause: 'The voting you tried to access is not available for you... =(' })
     }
 
-    return res.status(200).json(voting)
+    return res.status(200).json(availableVoting)
   } catch (err: unknown) {
     if (err instanceof Error) {
       console.error('[ERROR] [Voting Controller] Failed to parse voting by ID! Error: ' + err.message)
