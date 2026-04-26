@@ -4,6 +4,6 @@ import { auth } from '@middlewares'
 
 const router = express.Router()
 
-router.post('/votings/:votingId/vote', auth, voteHandler)
+router.post('/:votingId', auth, voteHandler)
 
 export default router
