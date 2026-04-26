@@ -38,7 +38,7 @@ export async function castVote({
 
   console.info('[Vote Service] Checking if selected voting option is valid...')
   const userSelectedVotingOption = await prismaClient.votingOption.findUnique({
-    where: { id: optionId },
+    where: { id: optionId, votingId },
   })
   if (!userSelectedVotingOption) {
     console.error('[ERROR] [Vote Service] Invalid voting option!')
