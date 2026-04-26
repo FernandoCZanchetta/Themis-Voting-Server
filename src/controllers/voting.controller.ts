@@ -1,7 +1,7 @@
 import { Response } from 'express'
 import { prismaClient } from '@db'
 import { VotingWhereInput } from '@generated'
-import { votingsQuerySchema } from '@schemas'
+import { votingsParamsSchema, votingsQuerySchema } from '@schemas'
 import { AuthRequest } from '@types'
 import { isUserEligible } from '@utils'
 
@@ -82,11 +82,18 @@ export async function getVotingById(req: AuthRequest<{ votingId: string }>, res:
       return res.status(401).json({ error: 'Unauthorized', cause: 'It seems that you are not logged in... =O' })
     }
 
-    console.info('[Voting Controller] Parsing voting ID...')
-    const { votingId } = req.params
+    console.info('[Voting Controller] Parsing voting ID in request params...')
+    const parsedParams = votingsParamsSchema.safeParse(req.params)
+
+    if (!parsedParams.success) {
+      console.error('[ERROR] [Voting Controller] Invalid params parameters in the request!')
+      return res.status(400).json({ error: 'Invalid Params', cause: 'Check the params of your request!' })
+    }
+
+    const { id } = parsedParams.data
 
     console.info('[Voting Controller] Getting voting from DB...')
-    const voting = await prismaClient.voting.findUnique({ where: { id: votingId } })
+    const voting = await prismaClient.voting.findUnique({ where: { id } })
 
     console.info('[Voting Controller] Checking if voting exists...')
     if (!voting) {
