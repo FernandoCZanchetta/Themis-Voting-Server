@@ -59,10 +59,7 @@ export async function getVotings(req: AuthRequest, res: Response) {
 
     console.info('[Voting Controller] Preparing final where filter...')
     const votingsWhereFilter: VotingWhereInput = {
-      AND: [
-        ...votingsEligibilityWhereFilter,
-        ...votingsStatusWhereFilter,
-      ],
+      AND: [...votingsEligibilityWhereFilter, ...votingsStatusWhereFilter],
     }
 
     console.info('[Voting Controller] Getting votings...')
@@ -117,7 +114,7 @@ export async function getVotingById(req: AuthRequest<{ votingId: string }>, res:
     const votingEligibilityWhereFilter = buildVotingEligibilityWhereFilter(user)
 
     console.info('[Voting Controller] Checking if voting is eligible to the user...')
-    const availableVoting = await prismaClient.voting.findFirst({ where: { id, AND: votingEligibilityWhereFilter }})
+    const availableVoting = await prismaClient.voting.findFirst({ where: { id, AND: votingEligibilityWhereFilter } })
     if (!availableVoting) {
       return res
         .status(403)
