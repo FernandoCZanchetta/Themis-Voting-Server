@@ -28,13 +28,16 @@ export function isUserEligible(user: AuthUser, voting: Voting) {
     return true
   }
 
+  /* eslint-disable no-extra-parens */
   const eligibleCourse =
     voting.allowedCourses.length === 0 || (!!user.course && voting.allowedCourses.includes(user.course))
 
   const eligibleInstitute =
     voting.allowedInstitutes.length === 0 || (!!user.institute && voting.allowedInstitutes.includes(user.institute))
 
-  // const eligibleCampus = voting.allowedCampi.length === 0 || !!user.campus && voting.allowedCampi.includes(user.campus)
+  // const eligibleCampus = 
+  //   voting.allowedCampi.length === 0 || (!!user.campus && voting.allowedCampi.includes(user.campus))
+  /* eslint-enable no-extra-parens */
 
   return eligibleCourse && eligibleInstitute
 }
