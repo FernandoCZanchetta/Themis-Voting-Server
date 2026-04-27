@@ -35,7 +35,7 @@ export function isUserEligible(user: AuthUser, voting: Voting) {
   const eligibleInstitute =
     voting.allowedInstitutes.length === 0 || (!!user.institute && voting.allowedInstitutes.includes(user.institute))
 
-  // const eligibleCampus = 
+  // const eligibleCampus =
   //   voting.allowedCampi.length === 0 || (!!user.campus && voting.allowedCampi.includes(user.campus))
   /* eslint-enable no-extra-parens */
 

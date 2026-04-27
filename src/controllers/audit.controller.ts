@@ -64,11 +64,9 @@ export async function auditVote(req: Request, res: Response) {
     }
 
     console.error('[ERROR] [Audit Controller] Unknown error found when auditing vote!')
-    return res
-      .status(500)
-      .json({
-        error: 'Vote Auditing Failed',
-        cause: 'Unknown error found while auditing vote! Try again later or contact us!',
-      })
+    return res.status(500).json({
+      error: 'Vote Auditing Failed',
+      cause: 'Unknown error found while auditing vote! Try again later or contact us!',
+    })
   }
 }
