@@ -3,7 +3,7 @@ import { prismaClient } from '@db'
 import { VotingWhereInput } from '@generated'
 import { votingsParamsSchema, votingsQuerySchema } from '@schemas'
 import { AuthRequest } from '@types'
-import { buildVotingEligibilityWhereFilter } from '@utils'
+import { buildVotingEligibilityWhereFilter, isUserEligible } from '@utils'
 
 export async function getVotings(req: AuthRequest, res: Response) {
   try {
@@ -110,18 +110,14 @@ export async function getVotingById(req: AuthRequest<{ votingId: string }>, res:
       return res.status(404).json({ error: 'Voting Not Found', cause: 'It seems like it does not exist...' })
     }
 
-    console.info('[Voting Controller] Preparing voting eligibility filter...')
-    const votingEligibilityWhereFilter = buildVotingEligibilityWhereFilter(user)
-
-    console.info('[Voting Controller] Checking if voting is eligible to the user...')
-    const availableVoting = await prismaClient.voting.findFirst({ where: { id, AND: votingEligibilityWhereFilter } })
-    if (!availableVoting) {
+    console.info('[Voting Controller] Checking if user is eligible to the voting...')
+    if (!isUserEligible(user, voting)) {
       return res
         .status(403)
         .json({ error: 'Forbidden', cause: 'The voting you tried to access is not available for you... =(' })
     }
 
-    return res.status(200).json(availableVoting)
+    return res.status(200).json(voting)
   } catch (err: unknown) {
     if (err instanceof Error) {
       console.error('[ERROR] [Voting Controller] Failed to parse voting by ID! Error: ' + err.message)
