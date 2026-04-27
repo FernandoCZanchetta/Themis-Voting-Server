@@ -28,9 +28,11 @@ export function isUserEligible(user: AuthUser, voting: Voting) {
     return true
   }
 
-  const eligibleCourse = voting.allowedCourses.length === 0 || !!user.course && voting.allowedCourses.includes(user.course)
+  const eligibleCourse =
+    voting.allowedCourses.length === 0 || (!!user.course && voting.allowedCourses.includes(user.course))
 
-  const eligibleInstitute = voting.allowedInstitutes.length === 0 || !!user.institute && voting.allowedInstitutes.includes(user.institute)
+  const eligibleInstitute =
+    voting.allowedInstitutes.length === 0 || (!!user.institute && voting.allowedInstitutes.includes(user.institute))
 
   // const eligibleCampus = voting.allowedCampi.length === 0 || !!user.campus && voting.allowedCampi.includes(user.campus)
 
