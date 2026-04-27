@@ -103,7 +103,7 @@ export async function getVotingById(req: AuthRequest<{ votingId: string }>, res:
     const { id } = parsedParams.data
 
     console.info('[Voting Controller] Getting voting from DB...')
-    const voting = await prismaClient.voting.findUnique({ where: { id } })
+    const voting = await prismaClient.voting.findUnique({ where: { id }, include: { votingOptions: true } })
 
     console.info('[Voting Controller] Checking if voting exists...')
     if (!voting) {
