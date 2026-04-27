@@ -37,7 +37,7 @@ export async function castVote({
   }
 
   console.info('[Vote Service] Checking if selected voting option is valid...')
-  const userSelectedVotingOption = await prismaClient.votingOption.findUnique({
+  const userSelectedVotingOption = await prismaClient.votingOption.findFirst({
     where: { id: optionId, votingId },
   })
   if (!userSelectedVotingOption) {
