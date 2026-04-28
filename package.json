@@ -5,6 +5,8 @@
   "main": "src/server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "deploy": "node dist/server.js",
     "start": "ts-node -r tsconfig-paths/register src/server.ts",
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn src/server.ts",
     "lint": "npx eslint . && npx prettier -c .",
