@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: themis-voting-server
+    restart: unless-stopped
+    env_file:
+      - ../themis-voting-server.env
+    depends_on:
+      - postgres
+    ports:
+      - "5193:5193"
+    networks:
+      - internal
+
+  postgres:
+    image: postgres:16
+    container_name: themis-voting-PGDB
+    restart: unless-stopped
+    env_file:
+      - ../themis-voting-server.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+
+volumes:
+  pgdata:
+
+networks:
+  internal:
+    driver: bridge
