@@ -55,6 +55,8 @@ export async function scrapeJupiterUser(nUSP: string, uniquePassword: string, re
     await page.click(hourlyScheduleJupiterSelector)
 
     console.info('[JupiterWeb Scrapper] Wait program selector & options to load...')
+    await page.waitForSelector('select')
+    await page.waitForSelector('option:nth-child(2)', { state: 'attached' })
     const programSelector = page.locator('select')
     const programOptions = programSelector.locator('option')
     const programCount = await programOptions.count()
